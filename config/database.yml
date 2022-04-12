@@ -1,0 +1,25 @@
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  username: <%= ENV['DB_USERNAME'] || 'user'%>
+  host: <%= ENV['DB_HOSTNAME'] || 'localhost' %>
+  schema_search_path: public
+  password: <%= ENV['DB_PASSWORD' || 'password'] %>
+  database: <%= ENV['DB_NAME'] || 'beckett' %>
+
+test:
+  <<: *default
+  database: <%= ENV['TEST_DB_NAME'] || 'beckett_test' %>
+
+development:
+  <<: *default
+  database: <%= Rails.application.credentials.dig(:dev, :db_name) %>
+  username: <%= Rails.application.credentials.dig(:dev, :db_user) %>
+  password: <%= Rails.application.credentials.dig(:dev, :db_pw) %>
+
+production:
+  <<: *default
+  database: beckett_data_api_production
+  username: beckett_data_api
+  password: <%= ENV["BECKETT_DATA_API_DATABASE_PASSWORD"] %>

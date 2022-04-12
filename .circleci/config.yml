@@ -1,0 +1,53 @@
+version: 2.1
+
+
+jobs:
+  build:
+    docker:
+      - image: cimg/ruby:3.0.2
+        environment:
+          PGUSER: root
+          RAILS_ENV: test
+          DB_HOSTNAME: 127.0.0.1
+          DB_USERNAME: user
+          DB_PASSWORD: password
+          TEST_DB_NAME: beckett_test
+          CI: 'circleci'
+
+      - image: cimg/postgres:10.19
+        environment:
+          POSTGRES_USER: user
+          POSTGRES_DB: beckett_test
+          POSTGRES_PASSWORD: password
+
+      - image: docker.elastic.co/elasticsearch/elasticsearch:7.17.1
+        environment:
+          - STACK_VERSION: 7.17.1
+          - xpack.security.enabled: false
+          - cluster.name: beckett-elasticsearch
+          - http.port: 9200
+          - discovery.type: single-node
+
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            sudo apt update
+            sudo apt install -y postgresql-client || true
+            gem install bundle
+            bundle check --path=vendor/bundle || bundle install --path=vendor/bundle --jobs 4 --retry 3
+
+      - run:
+          name: Wait for Elasticsearch startup
+          command: |
+            dockerize -wait tcp://localhost:9200
+
+      - run:
+          name: Database Setup
+          command: |
+            bundle exec rake db:create db:migrate
+
+      - run:
+          name: Run specs
+          command: bundle exec rspec spec/

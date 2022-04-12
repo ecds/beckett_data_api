@@ -1,0 +1,8 @@
+Link between letter and repository? Reposiotiries organizations?
+
+When presenting the data, how should things like GeoNames, VIAF, WIKIDATA, etc be labeled? "identifier", "sameAs"
+
+What is "entityID"? Found on the letters, works, and activities table?
+
+What are officially calling the allowed types for corporations/organizations, events, and works?
+
